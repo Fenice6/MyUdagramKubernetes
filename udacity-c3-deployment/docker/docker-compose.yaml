@@ -1,0 +1,42 @@
+version: "3"
+services:
+  reverseproxy: # proxy per mappare TUTTO il backend sulla stessa porta. Il backend è mappato sulla 8100. Ma esponiamo la 8080 che poi ridirige il traffico 
+      image: lapiana/reverseproxy
+      ports: # espone la porta 8080
+          - 8080:8080
+      restart: always
+      depends_on:
+        - backend-user
+        - backend-feed     
+  backend-user: # questo servizio si occupa degli utenti
+    image: lapiana/udacity-restapi-user
+    volumes: # definizione dei volumi (simile ad una mount di file)
+      - $HOME/.aws:/root/.aws
+    environment: # variabili d'ambiente
+      POSTGRESS_USERNAME: $POSTGRESS_USERNAME
+      POSTGRESS_PASSWORD: $POSTGRESS_PASSWORD 
+      POSTGRESS_DB: $POSTGRESS_DB 
+      POSTGRESS_HOST: $POSTGRESS_HOST 
+      AWS_REGION: $AWS_REGION 
+      AWS_PROFILE: $AWS_PROFILE 
+      AWS_BUCKET: $AWS_BUCKET
+      JWT_SECRET: $JWT_SECRET
+      URL: "http://localhost:8100"
+  backend-feed: # questo servizio si occupa dei feeds
+    image: lapiana/udacity-restapi-feed
+    volumes: # definizione dei volumi (simile ad una mount di file)
+      - $HOME/.aws:/root/.aws
+    environment: # variabili d'ambiente
+      POSTGRESS_USERNAME: $POSTGRESS_USERNAME
+      POSTGRESS_PASSWORD: $POSTGRESS_PASSWORD 
+      POSTGRESS_DB: $POSTGRESS_DB 
+      POSTGRESS_HOST: $POSTGRESS_HOST 
+      AWS_REGION: $AWS_REGION 
+      AWS_PROFILE: $AWS_PROFILE 
+      AWS_BUCKET: $AWS_BUCKET
+      JWT_SECRET: $JWT_SECRET
+      URL: "http://localhost:8100"
+  frontend: # questo si occupa del frontend
+    image: lapiana/udacity-frontend:local
+    ports:
+      - "8100:80" # mapping delle porte per il frontend

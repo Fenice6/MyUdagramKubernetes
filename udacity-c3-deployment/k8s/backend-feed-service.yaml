@@ -1,0 +1,15 @@
+# Per questo service fare un portforwarding del tipo:
+# kubectl port-forwarding service/backend-feed 8080:8080
+apiVersion: v1
+kind: Service # tipo service
+metadata:
+  labels:
+    service: backend-feed
+  name: backend-feed
+spec:
+  ports:
+  - name: "8080"
+    port: 8080 # mapping della porta 8080
+    targetPort: 8080 # target del mapping
+  selector:
+    service: backend-feed # mappiamo le porte di prima tutte le volre che troviamo l'etichetta service col valore backend-feed
